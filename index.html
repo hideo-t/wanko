@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>わんだふるアプリ - WANDERFUL APP</title>
+  <title>わんだふるアプリ - 那須ハイランドパーク公式</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -65,7 +65,7 @@
   <script type="text/babel">
     const { useState } = React;
 
-    // Lucide React icons as simple SVG components
+    // アイコンコンポーネント
     const Camera = ({ size = 24, className = "" }) => (
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
         <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
@@ -140,12 +140,51 @@
       </svg>
     );
 
+    const Ticket = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 0 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
+        <path d="M13 5v2"/>
+        <path d="M13 17v2"/>
+        <path d="M13 11v2"/>
+      </svg>
+    );
+
+    // 実際のアトラクションデータ（公式パンフレットより）
+    const ATTRACTIONS = {
+      8: { name: "フラビアファミリー", price: 500, dogFriendly: true },
+      15: { name: "ティーカップ", price: 500, dogFriendly: true },
+      17: { name: "カルーセル", price: 500, dogFriendly: true },
+      19: { name: "洞窟探検MOGURA", price: 600, dogFriendly: true },
+      22: { name: "ハローキティ＆クソッシュ＆ペッパー", price: 500, dogFriendly: false },
+      23: { name: "大観覧車", price: 600, dogFriendly: true },
+      27: { name: "GiGaMo ver2.0", price: 600, dogFriendly: true },
+      28: { name: "スペースジェット", price: 500, dogFriendly: true },
+      39: { name: "ジャイアントコースター", price: 600, dogFriendly: false }
+    };
+
+    // ドッグラン情報
+    const DOG_RUNS = [
+      { name: "コースタードッグラン", description: "園内で一番広い！1,000㎡の天然芝ドッグラン！真上をジェットコースターが走行する、他にはない迫力満点のドッグランです♪" },
+      { name: "フォレストプラザドッグラン", description: "1,100㎡の人工芝ドッグラン！小型犬～大型犬、サイズのわんちゃんがご利用可能です！" },
+      { name: "ミドッグラン全3か所", description: "園内3か所のミドッグラン♪" }
+    ];
+
+    // レストラン情報
+    const RESTAURANTS = [
+      { name: "わんちゃんとロビーカーナ", menu: "わんこハンバーグ、わんこラーメンなど", price: "600円～" },
+      { name: "園内のレストラン", menu: "ペット同伴可能な屋外テラス席あり", price: "各種" }
+    ];
+
+    // メインアプリコンポーネント
     const WanderfulApp = () => {
       const [currentView, setCurrentView] = useState('home');
       const [fortuneResult, setFortuneResult] = useState(null);
       const [imagePreview, setImagePreview] = useState(null);
+      const [userType, setUserType] = useState('dog'); // 'dog' or 'human'
 
-      const handleDogFortune = (imageFile) => {
+      const handleFortune = (imageFile, type) => {
+        setUserType(type);
+        
         if (imageFile) {
           const reader = new FileReader();
           reader.onloadend = () => {
@@ -154,46 +193,144 @@
           reader.readAsDataURL(imageFile);
         }
 
+        if (type === 'dog') {
+          handleDogFortune();
+        } else {
+          handleHumanFortune();
+        }
+      };
+
+      const handleDogFortune = () => {
         const dogTypes = [
           {
-            type: '活発タイプ',
+            type: '活発タイプ 🏃‍♂️',
             personality: 'エネルギッシュで好奇心旺盛！いつも元気いっぱいのわんちゃんです。',
-            recommendation: '今日は思いっきり体を動かす体験がおすすめです。',
-            attractions: ['GigaMo（ジャイロタワー）', 'SHINOBI（忍者アスレチック）', 'ドッグラン広場'],
-            restaurant: '森のレストラン',
-            restaurantMenu: 'わんこハンバーグセット ¥800',
-            shop: 'わんこアクティブグッズ',
-            shopItems: ['アクティブボール', '運動用ハーネス', '冒険グッズセット'],
+            recommendation: '今日は思いっきり体を動かす体験がおすすめです！',
+            course: [
+              { id: 27, ...ATTRACTIONS[27], order: 1 },
+              { id: 39, ...ATTRACTIONS[39], order: 2, note: "※わんちゃんは乗れませんが、待合スペースあり" },
+              { id: 28, ...ATTRACTIONS[28], order: 3 }
+            ],
+            dogRuns: [DOG_RUNS[0], DOG_RUNS[1]],
+            restaurant: RESTAURANTS[0],
+            totalCost: 1700,
+            wanderfulPass: "わんっダブルパス（期間内乗り放題）がお得！わんちゃん1頭 3,000円",
+            shopRecommendation: {
+              category: "わんこアクティブグッズ",
+              items: ["アクティブボール ¥1,200", "運動用ハーネス ¥2,500", "冒険グッズセット ¥3,800"]
+            },
             nextVisit: '2026年4月〜5月',
-            nextVisitReason: 'この子の運勢では、春の新緑シーズンに新しい冒険との相性が良い流れです。'
+            nextVisitReason: 'この子の運勢では、春の新緑シーズンに新しい冒険との相性が良い流れです。フォレストプラザドッグランで思いっきり走り回るのに最適な季節！'
           },
           {
-            type: '穏やかタイプ',
+            type: '穏やかタイプ 🌸',
             personality: '落ち着いていて優しい性格。マイペースで癒し系のわんちゃんです。',
             recommendation: '今日はゆっくり景色を楽しむ体験がおすすめです。',
-            attractions: ['大観覧車', 'スカイローラー', 'のんびりドッグラン'],
-            restaurant: 'カフェテラス',
-            restaurantMenu: 'わんこおやつプレート ¥600',
-            shop: 'わんこリラックスグッズ',
-            shopItems: ['柔らかクッション', 'アロマカラー', '癒しグッズセット'],
+            course: [
+              { id: 23, ...ATTRACTIONS[23], order: 1 },
+              { id: 17, ...ATTRACTIONS[17], order: 2 },
+              { id: 15, ...ATTRACTIONS[15], order: 3 }
+            ],
+            dogRuns: [DOG_RUNS[2]],
+            restaurant: RESTAURANTS[1],
+            totalCost: 1600,
+            wanderfulPass: "わんっダブルパス（1頭1day）なら2,000円で全て楽しめます",
+            shopRecommendation: {
+              category: "わんこリラックスグッズ",
+              items: ["柔らかクッション ¥2,800", "アロマカラー ¥1,500", "癒しグッズセット ¥4,200"]
+            },
             nextVisit: '2026年6月〜7月',
-            nextVisitReason: 'この子の運勢では、初夏の爽やかな時期に心地よい体験との相性が良い流れです。'
+            nextVisitReason: 'この子の運勢では、初夏の爽やかな時期に心地よい体験との相性が良い流れです。大観覧車から見る那須の緑が最高に美しい季節！'
           },
           {
-            type: '好奇心旺盛タイプ',
+            type: '好奇心旺盛タイプ 🔍',
             personality: '何にでも興味津々！新しいことが大好きな探検家わんちゃんです。',
-            recommendation: '今日は初めての体験にチャレンジしてみましょう。',
-            attractions: ['洞窟探検MOGURA', 'エクストリームランバイク', '冒険ドッグラン'],
-            restaurant: 'アドベンチャーカフェ',
-            restaurantMenu: 'わんこ冒険ランチ ¥900',
-            shop: 'わんこ探検グッズ',
-            shopItems: ['探検バッグ', 'LED首輪', '冒険記念グッズ'],
+            recommendation: '今日は初めての体験にチャレンジしてみましょう！',
+            course: [
+              { id: 19, ...ATTRACTIONS[19], order: 1 },
+              { id: 8, ...ATTRACTIONS[8], order: 2 },
+              { id: 27, ...ATTRACTIONS[27], order: 3 }
+            ],
+            dogRuns: [DOG_RUNS[0]],
+            restaurant: RESTAURANTS[0],
+            totalCost: 1700,
+            wanderfulPass: "わんっダブルパス（期間内乗り放題 わんちゃん1頭 3,000円）で遊び尽くそう！",
+            shopRecommendation: {
+              category: "わんこ探検グッズ",
+              items: ["探検バッグ ¥2,200", "LED首輪 ¥1,800", "冒険記念グッズ ¥3,500"]
+            },
             nextVisit: '2026年3月〜4月',
-            nextVisitReason: 'この子の運勢では、春先に新しい発見との相性が良い流れです。'
+            nextVisitReason: 'この子の運勢では、春先に新しい発見との相性が良い流れです。洞窟探検MOGURAで新たな冒険を！'
           }
         ];
 
         const randomType = dogTypes[Math.floor(Math.random() * dogTypes.length)];
+        setFortuneResult(randomType);
+        setCurrentView('result');
+      };
+
+      const handleHumanFortune = () => {
+        const humanTypes = [
+          {
+            type: 'アドベンチャー運 🎢',
+            personality: '今日のあなたは冒険心がMAX！刺激を求める日です。',
+            recommendation: 'スリル満点のアトラクションで運気UP！',
+            course: [
+              { id: 39, ...ATTRACTIONS[39], order: 1 },
+              { id: 27, ...ATTRACTIONS[27], order: 2 },
+              { id: 28, ...ATTRACTIONS[28], order: 3 }
+            ],
+            restaurant: { name: "園内レストラン", menu: "エネルギーチャージメニュー", price: "800円～" },
+            totalCost: 1800,
+            wanderfulPass: "ファンタジーパスセット（大人/小人/シニア 5,000円）がおすすめ！",
+            shopRecommendation: {
+              category: "記念グッズ",
+              items: ["オリジナルTシャツ ¥2,800", "キーホルダー ¥800", "ポイ太くんぬいぐるみ ¥2,500"]
+            },
+            nextVisit: '2026年5月GW',
+            nextVisitReason: 'あなたの運勢では、ゴールデンウィークに最高の思い出を作れる流れがあります！'
+          },
+          {
+            type: 'リラックス運 🌈',
+            personality: '今日のあなたは穏やかな時間を求めています。',
+            recommendation: 'ゆったり楽しめるアトラクションで心を癒して。',
+            course: [
+              { id: 23, ...ATTRACTIONS[23], order: 1 },
+              { id: 17, ...ATTRACTIONS[17], order: 2 },
+              { id: 15, ...ATTRACTIONS[15], order: 3 }
+            ],
+            restaurant: { name: "園内カフェ", menu: "スイーツセット", price: "700円～" },
+            totalCost: 1600,
+            wanderfulPass: "ゆったり楽しむなら1日券がぴったり！",
+            shopRecommendation: {
+              category: "癒しグッズ",
+              items: ["アロマグッズ ¥1,500", "オリジナルマグカップ ¥1,200", "フォトフレーム ¥800"]
+            },
+            nextVisit: '2026年6月〜7月',
+            nextVisitReason: 'あなたの運勢では、初夏の爽やかな時期にワクワクする体験に出会いやすい流れがあります。'
+          },
+          {
+            type: 'エンジョイ運 🎪',
+            personality: '今日のあなたは何でも楽しめる最高の日！',
+            recommendation: 'バラエティ豊かなアトラクションで満喫を。',
+            course: [
+              { id: 19, ...ATTRACTIONS[19], order: 1 },
+              { id: 8, ...ATTRACTIONS[8], order: 2 },
+              { id: 23, ...ATTRACTIONS[23], order: 3 }
+            ],
+            restaurant: { name: "園内レストラン", menu: "おすすめランチセット", price: "850円～" },
+            totalCost: 1700,
+            wanderfulPass: "ファンタジーパスセットで思う存分遊ぼう！",
+            shopRecommendation: {
+              category: "思い出グッズ",
+              items: ["オリジナルパーカー ¥3,800", "写真立て ¥1,500", "記念メダル ¥600"]
+            },
+            nextVisit: '2026年4月',
+            nextVisitReason: 'あなたの運勢では、春の訪れとともに新しい発見がある流れです。'
+          }
+        ];
+
+        const randomType = humanTypes[Math.floor(Math.random() * humanTypes.length)];
         setFortuneResult(randomType);
         setCurrentView('result');
       };
@@ -206,48 +343,64 @@
                 <Dog size={36} className="animate-bounce" />
                 <h1 className="text-4xl font-black tracking-tight">わんだふるアプリ</h1>
               </div>
-              <p className="text-center text-pink-100 text-sm">WANDERFUL APP - 那須ハイランドパーク</p>
+              <p className="text-center text-pink-100 text-sm">WANDERFUL APP - 那須ハイランドパーク公式</p>
             </div>
           </header>
 
           <main className="max-w-4xl mx-auto px-4 py-8">
+            {/* お知らせバナー */}
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl shadow-xl p-6 mb-8 text-white">
+              <div className="flex items-center gap-3 mb-3">
+                <Ticket size={32} />
+                <h3 className="text-2xl font-black">わんっダブルパス</h3>
+              </div>
+              <div className="bg-white/20 rounded-2xl p-4">
+                <p className="font-bold mb-2">🎫 1頭1day：2,000円</p>
+                <p className="text-sm mb-2">対象アトラクション乗り放題！</p>
+                <p className="font-bold">🎟️ 期間内乗り放題：わんちゃん1頭 3,000円</p>
+                <p className="text-sm">（大人/小人/シニア：5,000円）</p>
+              </div>
+            </div>
+
+            {/* 今日のおすすめ */}
             <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border-4 border-orange-200">
               <div className="flex items-center gap-2 mb-4">
                 <Sparkles className="text-yellow-500" size={28} />
                 <h2 className="text-2xl font-bold text-gray-800">今日のおすすめ体験</h2>
               </div>
               <p className="text-gray-600 mb-6">
-                わんこ占いで、あなたとわんちゃんに最適な1日をナビゲートします！
+                占いで、あなたに最適な1日をナビゲート！実際のアトラクション番号とコースをご提案します。
               </p>
               <div className="grid md:grid-cols-3 gap-4 text-center">
                 <div className="bg-gradient-to-br from-orange-100 to-pink-100 p-4 rounded-2xl">
                   <MapPin className="mx-auto mb-2 text-orange-500" size={32} />
                   <p className="font-bold text-gray-800">迷わない</p>
-                  <p className="text-sm text-gray-600">おすすめルート</p>
+                  <p className="text-sm text-gray-600">最適ルート提案</p>
                 </div>
                 <div className="bg-gradient-to-br from-pink-100 to-purple-100 p-4 rounded-2xl">
                   <Heart className="mx-auto mb-2 text-pink-500" size={32} />
                   <p className="font-bold text-gray-800">楽しい</p>
-                  <p className="text-sm text-gray-600">わんこ占い</p>
+                  <p className="text-sm text-gray-600">AI占い</p>
                 </div>
                 <div className="bg-gradient-to-br from-purple-100 to-blue-100 p-4 rounded-2xl">
                   <TrendingUp className="mx-auto mb-2 text-purple-500" size={32} />
-                  <p className="font-bold text-gray-800">思い出</p>
-                  <p className="text-sm text-gray-600">記録に残る</p>
+                  <p className="font-bold text-gray-800">お得</p>
+                  <p className="text-sm text-gray-600">パス案内</p>
                 </div>
               </div>
             </div>
 
+            {/* わんこ占い */}
             <div className="bg-gradient-to-br from-orange-400 to-pink-400 rounded-3xl shadow-2xl p-8 mb-8 text-white">
               <div className="flex items-center gap-3 mb-4">
                 <Dog className="animate-pulse" size={32} />
-                <h2 className="text-3xl font-black">わんこ占い</h2>
+                <h2 className="text-3xl font-black">わんこ占い 🐕</h2>
               </div>
               <p className="mb-6 text-pink-100">
-                愛犬の写真を撮影して、今日のおすすめ体験を占おう！
+                愛犬の写真を撮影して、今日のおすすめコースを占おう！
               </p>
               
-              <label className="block">
+              <label className="block mb-4">
                 <div className="bg-white text-orange-500 rounded-2xl px-8 py-4 text-center font-bold text-lg cursor-pointer hover:bg-orange-50 transition-all duration-300 transform hover:scale-105 shadow-lg">
                   <Camera className="inline mr-2" size={24} />
                   📸 わんちゃんを撮影する
@@ -259,15 +412,15 @@
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
-                      handleDogFortune(e.target.files[0]);
+                      handleFortune(e.target.files[0], 'dog');
                     }
                   }}
                 />
               </label>
               
-              <div className="mt-6 text-center">
+              <div className="text-center">
                 <button 
-                  onClick={() => handleDogFortune(null)}
+                  onClick={() => handleFortune(null, 'dog')}
                   className="bg-pink-600 hover:bg-pink-700 text-white rounded-2xl px-6 py-3 font-bold transition-all duration-300"
                 >
                   デモ占いを試す
@@ -275,16 +428,17 @@
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-400 to-blue-400 rounded-3xl shadow-2xl p-8 text-white">
+            {/* 人間AI手相占い */}
+            <div className="bg-gradient-to-br from-purple-400 to-blue-400 rounded-3xl shadow-2xl p-8 mb-8 text-white">
               <div className="flex items-center gap-3 mb-4">
                 <Sparkles className="animate-spin" size={32} style={{ animationDuration: '3s' }} />
-                <h2 className="text-3xl font-black">人間AI手相占い</h2>
+                <h2 className="text-3xl font-black">人間AI手相占い 🖐️</h2>
               </div>
               <p className="mb-6 text-purple-100">
                 ペット無しの方も楽しめる！手相であなたの今日の運勢をチェック
               </p>
               
-              <label className="block">
+              <label className="block mb-4">
                 <div className="bg-white text-purple-500 rounded-2xl px-8 py-4 text-center font-bold text-lg cursor-pointer hover:bg-purple-50 transition-all duration-300 transform hover:scale-105 shadow-lg">
                   <Camera className="inline mr-2" size={24} />
                   🖐️ 手のひらを撮影する
@@ -294,10 +448,44 @@
                   accept="image/*" 
                   capture="environment"
                   className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleFortune(e.target.files[0], 'human');
+                    }
+                  }}
                 />
               </label>
+              
+              <div className="text-center">
+                <button 
+                  onClick={() => handleFortune(null, 'human')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-6 py-3 font-bold transition-all duration-300"
+                >
+                  デモ占いを試す
+                </button>
+              </div>
             </div>
 
+            {/* 入園案内 */}
+            <div className="bg-white rounded-3xl shadow-xl p-6 mb-8">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">📍 入園料金</h3>
+              <div className="grid gap-3">
+                <div className="flex justify-between items-center bg-orange-50 p-3 rounded-xl">
+                  <span className="font-bold">わんちゃん 1頭</span>
+                  <span className="text-orange-600 font-bold">¥500</span>
+                </div>
+                <div className="flex justify-between items-center bg-pink-50 p-3 rounded-xl">
+                  <span className="font-bold">大人（中学生以上）</span>
+                  <span className="text-pink-600 font-bold">¥1,600</span>
+                </div>
+                <div className="flex justify-between items-center bg-purple-50 p-3 rounded-xl">
+                  <span className="font-bold">小人・シニア</span>
+                  <span className="text-purple-600 font-bold">¥800</span>
+                </div>
+              </div>
+            </div>
+
+            {/* フッター */}
             <div className="mt-12 text-center text-gray-500 text-sm">
               <p>© 2026 那須ハイランドパーク × わんだふるアプリ</p>
               <p className="mt-2">園内体験を最大化する統合ナビゲーションアプリ</p>
@@ -325,19 +513,21 @@
             </header>
 
             <main className="max-w-4xl mx-auto px-4 py-8">
+              {/* 写真プレビュー */}
               {imagePreview && (
                 <div className="bg-white rounded-3xl shadow-xl p-6 mb-6">
                   <img 
                     src={imagePreview} 
-                    alt="わんちゃん" 
+                    alt="占い画像" 
                     className="w-full max-w-md mx-auto rounded-2xl shadow-lg"
                   />
                 </div>
               )}
 
+              {/* タイプ判定 */}
               <div className="bg-gradient-to-br from-orange-400 to-pink-400 rounded-3xl shadow-2xl p-8 mb-6 text-white">
                 <div className="flex items-center gap-3 mb-4">
-                  <Dog className="animate-bounce" size={40} />
+                  {userType === 'dog' ? <Dog size={40} className="animate-bounce" /> : <Sparkles size={40} />}
                   <h2 className="text-3xl font-black">{fortuneResult.type}</h2>
                 </div>
                 <p className="text-xl mb-4">{fortuneResult.personality}</p>
@@ -347,55 +537,102 @@
                 </div>
               </div>
 
+              {/* おすすめコース */}
               <div className="bg-white rounded-3xl shadow-xl p-8 mb-6">
                 <div className="flex items-center gap-2 mb-4">
                   <MapPin className="text-orange-500" size={28} />
-                  <h3 className="text-2xl font-bold text-gray-800">おすすめアトラクション</h3>
+                  <h3 className="text-2xl font-bold text-gray-800">今日のおすすめコース</h3>
                 </div>
-                <div className="grid gap-3">
-                  {fortuneResult.attractions.map((attraction, index) => (
+                
+                <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 mb-4">
+                  <p className="font-bold text-yellow-800 mb-2">💰 合計料金：¥{fortuneResult.totalCost.toLocaleString()}</p>
+                  <p className="text-sm text-yellow-700">{fortuneResult.wanderfulPass}</p>
+                </div>
+
+                <div className="space-y-4">
+                  {fortuneResult.course.map((attraction) => (
                     <div 
-                      key={index}
-                      className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-4 border-2 border-orange-200"
+                      key={attraction.id}
+                      className="bg-gradient-to-r from-orange-100 to-pink-100 rounded-2xl p-5 border-2 border-orange-200"
                     >
-                      <p className="font-bold text-gray-800 flex items-center gap-2">
-                        <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
-                          {index + 1}
+                      <div className="flex items-start gap-3">
+                        <span className="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold flex-shrink-0">
+                          {attraction.order}
                         </span>
-                        {attraction}
-                      </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                              No.{attraction.id}
+                            </span>
+                            <h4 className="font-bold text-lg text-gray-800">{attraction.name}</h4>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-orange-600 font-bold">¥{attraction.price}</span>
+                            {attraction.dogFriendly && (
+                              <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">
+                                🐕 わんちゃんOK
+                              </span>
+                            )}
+                          </div>
+                          {attraction.note && (
+                            <p className="text-xs text-gray-600 mt-2">{attraction.note}</p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
-                <button className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white rounded-2xl px-6 py-3 font-bold transition-all">
-                  マップで確認する
+
+                <button className="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white rounded-2xl px-6 py-4 font-bold transition-all text-lg shadow-lg">
+                  🗺️ 園内マップで確認する
                 </button>
               </div>
 
+              {/* ドッグラン（わんこ占いの場合のみ） */}
+              {userType === 'dog' && fortuneResult.dogRuns && (
+                <div className="bg-white rounded-3xl shadow-xl p-8 mb-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Dog className="text-green-500" size={28} />
+                    <h3 className="text-2xl font-bold text-gray-800">おすすめドッグラン</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {fortuneResult.dogRuns.map((run, index) => (
+                      <div key={index} className="bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-4 border-2 border-green-200">
+                        <p className="font-bold text-gray-800 mb-2">{run.name}</p>
+                        <p className="text-sm text-gray-600">{run.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* レストラン */}
               <div className="bg-white rounded-3xl shadow-xl p-8 mb-6">
                 <div className="flex items-center gap-2 mb-4">
                   <UtensilsCrossed className="text-pink-500" size={28} />
                   <h3 className="text-2xl font-bold text-gray-800">おすすめレストラン</h3>
                 </div>
                 <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6 border-2 border-pink-200">
-                  <p className="font-bold text-xl text-gray-800 mb-2">{fortuneResult.restaurant}</p>
-                  <p className="text-gray-600 mb-4">体験の後は、こちらでゆっくりどうぞ</p>
-                  <div className="bg-white rounded-xl p-3 inline-block">
-                    <p className="text-sm text-gray-600">おすすめメニュー</p>
-                    <p className="font-bold text-pink-600">{fortuneResult.restaurantMenu}</p>
+                  <p className="font-bold text-xl text-gray-800 mb-2">{fortuneResult.restaurant.name}</p>
+                  <p className="text-gray-600 mb-3">体験の後は、こちらでゆっくりどうぞ</p>
+                  <div className="bg-white rounded-xl p-4">
+                    <p className="text-sm text-gray-600 mb-1">おすすめメニュー</p>
+                    <p className="font-bold text-pink-600 mb-2">{fortuneResult.restaurant.menu}</p>
+                    <p className="text-sm text-gray-500">{fortuneResult.restaurant.price}</p>
                   </div>
                 </div>
               </div>
 
+              {/* 物販 */}
               <div className="bg-white rounded-3xl shadow-xl p-8 mb-6">
                 <div className="flex items-center gap-2 mb-4">
                   <ShoppingBag className="text-purple-500" size={28} />
                   <h3 className="text-2xl font-bold text-gray-800">おすすめグッズ</h3>
                 </div>
                 <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl p-6 border-2 border-purple-200">
-                  <p className="font-bold text-xl text-gray-800 mb-4">{fortuneResult.shop}</p>
-                  <div className="grid gap-2">
-                    {fortuneResult.shopItems.map((item, index) => (
+                  <p className="font-bold text-xl text-gray-800 mb-4">{fortuneResult.shopRecommendation.category}</p>
+                  <div className="space-y-2">
+                    {fortuneResult.shopRecommendation.items.map((item, index) => (
                       <div key={index} className="bg-white rounded-xl p-3 flex items-center gap-2">
                         <ShoppingBag className="text-purple-400" size={20} />
                         <p className="text-gray-700">{item}</p>
@@ -403,12 +640,13 @@
                     ))}
                   </div>
                   <p className="mt-4 text-sm text-gray-600 italic">
-                    今日の体験を記念グッズで思い出に残しませんか？
+                    💝 今日の体験を記念グッズで思い出に残しませんか？
                   </p>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-400 to-purple-400 rounded-3xl shadow-2xl p-8 text-white">
+              {/* 次回おすすめ来園日 */}
+              <div className="bg-gradient-to-br from-blue-400 to-purple-400 rounded-3xl shadow-2xl p-8 text-white mb-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Calendar className="animate-pulse" size={32} />
                   <h3 className="text-2xl font-black">次回のおすすめ来園日</h3>
@@ -422,9 +660,13 @@
                 </p>
               </div>
 
-              <div className="mt-8 text-center">
-                <button className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-2xl px-8 py-4 font-bold text-lg transition-all shadow-xl transform hover:scale-105">
+              {/* 思い出保存ボタン */}
+              <div className="text-center space-y-4">
+                <button className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-2xl px-8 py-4 font-bold text-lg transition-all shadow-xl transform hover:scale-105 w-full">
                   💝 今日の思い出を保存する
+                </button>
+                <button className="bg-white border-2 border-orange-500 text-orange-500 hover:bg-orange-50 rounded-2xl px-8 py-3 font-bold transition-all w-full">
+                  📱 友達にシェアする
                 </button>
               </div>
             </main>
